@@ -1,3 +1,4 @@
+// a lot of stuff is stored front end but this class deals with spotify API interactions where need to talk to authentication server
 const express = require('express');
 const axios = require('axios')
 const cors = require('cors');
@@ -9,6 +10,7 @@ const app = express();
 app.use(cors()); // just to relax middleware security
 app.use(bodyParser.json()); // to parse json body (which is what code is)
 
+// login, grab tokens
 app.post('/login', (req, res) => { // post method, req/res are params 
     const code = req.body.code; // must be posted to 3001
     console.log("server " + code);
@@ -33,5 +35,32 @@ app.post('/login', (req, res) => { // post method, req/res are params
         res.sendStatus(400);
     })
 });
+
+// refresh access token
+app.post('/refresh', (req, res) => { 
+    const refresh_token = req.body.refreshToken; // needed for refresh
+    const client_id = "f7e20170b64b41a39cd2700b998b636f";
+    const client_secret = "2b2ae5c1af5f41c598cfb2bb15eb91cb";
+    const redirect_uri = "http://localhost:3000";
+    const spotifyAPI = new SpotifyWebApi({
+        redirectUri: redirect_uri,
+        clientId: client_id,
+        clientSecret: client_secret,
+        refreshToken: refresh_token
+    })
+
+    // same thing as in /login but written with functions instead of shorthand
+    spotifyAPI.refreshAccessToken().then(
+        function(data) {
+            console.log(data.body);
+            /* spotifyAPI.setAccessToken(data.body['access_token']); */
+        }, 
+        function(err) {
+            console.log('Could not refresh token ', err);
+            res.sendStatus(400);
+        }
+    )
+
+})
 
 app.listen(3001); // port we listen on
