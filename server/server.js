@@ -39,6 +39,7 @@ app.post('/login', (req, res) => { // post method, req/res are params
 // refresh access token
 app.post('/refresh', (req, res) => { 
     const refresh_token = req.body.refreshToken; // needed for refresh
+    console.log(refresh_token)
     const client_id = "f7e20170b64b41a39cd2700b998b636f";
     const client_secret = "2b2ae5c1af5f41c598cfb2bb15eb91cb";
     const redirect_uri = "http://localhost:3000";
@@ -52,8 +53,10 @@ app.post('/refresh', (req, res) => {
     // same thing as in /login but written with functions instead of shorthand
     spotifyAPI.refreshAccessToken().then(
         function(data) {
-            console.log(data.body);
-            /* spotifyAPI.setAccessToken(data.body['access_token']); */
+            res.json({
+                access_token: data.body.access_token,
+                expires_in: data.body.expires_in
+            })
         }, 
         function(err) {
             console.log('Could not refresh token ', err);

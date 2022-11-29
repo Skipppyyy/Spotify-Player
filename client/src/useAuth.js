@@ -6,7 +6,6 @@ export default function useAuth({code}) {
     const [accessToken, setAccessToken] = useState();
     const [refreshToken, setRefreshToken] = useState();
     const [expiresIn, setExpiresIn] = useState();
-    console.log("ua " + code)
 
     useEffect(() => { // arrow function
         axios.post('http://localhost:3001/login', {code}).then(res => { // posts the code to login route and then waits for promise to return response 
@@ -21,10 +20,10 @@ export default function useAuth({code}) {
     }, [code]); // list of variables after is optional, runs only when these values change (code)
 
     useEffect(() => {
+        if (!refreshToken || !expiresIn) return;
         axios.post('http://localhost:3001/refresh', {refreshToken}).then(res => { 
-            //setAccessToken(res.data.access_token);
-            //setRefreshToken(res.data.refresh_token);
-            //setExpiresIn(res.data.expires_in);
+            setAccessToken(res.data.access_token);
+            setExpiresIn(res.data.expires_in);
             //window.history.pushState({}, null, "/"); 
         }).catch(() => { 
             window.location = '/'; 
