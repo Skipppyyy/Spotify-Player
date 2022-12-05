@@ -19,15 +19,20 @@ export default function useAuth({code}) {
         }); 
     }, [code]); // list of variables after is optional, runs only when these values change (code)
 
-    useEffect(() => {
+
+    // use expiresIn to automatically refresh 
+    useEffect(() => { // was running once at start when variables first made & they were undefined
         if (!refreshToken || !expiresIn) return;
-        axios.post('http://localhost:3001/refresh', {refreshToken}).then(res => { 
-            setAccessToken(res.data.access_token);
-            setExpiresIn(res.data.expires_in);
-            //window.history.pushState({}, null, "/"); 
-        }).catch(() => { 
-            window.location = '/'; 
+        const timeout = setInterval(() => {
+            axios.post('http://localhost:3001/refresh', {refreshToken}).then(res => { 
+                setAccessToken(res.data.access_token);
+                setExpiresIn(res.data.expires_in); 
+            }).catch(() => { 
+                window.location = '/'; 
         }); 
+        }, (expiresIn - 60) * 1000) // time to wait for, refreshes 1 minute before expire
+        
+        return() => clearInterval(timeout); // way to run function on return, clears previously set timeout
     }, [refreshToken, expiresIn])
 
     return accessToken; 
