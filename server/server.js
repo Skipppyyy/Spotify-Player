@@ -1,20 +1,23 @@
 // a lot of stuff is stored front end but this class deals with spotify API interactions where need to talk to authentication server
+require('dotenv').config()
 const express = require('express');
 const axios = require('axios')
 const cors = require('cors');
 const request = require('request')
 const bodyParser = require('body-parser');
+const lyricsFinder = require('lyrics-finder')
 const SpotifyWebApi = require('spotify-web-api-node');
 
 const app = express();
 app.use(cors()); // just to relax middleware security
 app.use(bodyParser.json()); // to parse json body (which is what code is)
+app.use(bodyParser.urlencoded({ extended: true })); 
 
 // login, grab tokens
 app.post('/login', (req, res) => { // post method, req/res are params 
     const code = req.body.code; // must be posted to 3001
-    console.log("server " + code);
-    const client_id = "f7e20170b64b41a39cd2700b998b636f";
+    console.log(process.env.CLIENT_ID)
+    const client_id = process.env.CLIENT_ID;
     const client_secret = "2b2ae5c1af5f41c598cfb2bb15eb91cb";
     const redirect_uri = "http://localhost:3000";
 
@@ -39,7 +42,6 @@ app.post('/login', (req, res) => { // post method, req/res are params
 // refresh access token
 app.post('/refresh', (req, res) => { 
     const refresh_token = req.body.refreshToken; // needed for refresh
-    console.log(refresh_token)
     const client_id = "f7e20170b64b41a39cd2700b998b636f";
     const client_secret = "2b2ae5c1af5f41c598cfb2bb15eb91cb";
     const redirect_uri = "http://localhost:3000";
@@ -63,6 +65,12 @@ app.post('/refresh', (req, res) => {
             res.sendStatus(400);
         }
     )
+
+})
+
+app.get('/lyrics', async (req, res) => {
+    const lyrics = await lyricsFinder(req.query.artist, req.query.track) || "No Lyrics Found" // basically either get lyric string or error string
+    res.json({lyrics})
 
 })
 
