@@ -16,8 +16,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // login, grab tokens
 app.post('/login', (req, res) => { // post method, req/res are params 
     const code = req.body.code; // must be posted to 3001
-    console.log(process.env.CLIENT_ID)
-    const client_id = process.env.CLIENT_ID;
+    const client_id = "f7e20170b64b41a39cd2700b998b636f";
     const client_secret = "2b2ae5c1af5f41c598cfb2bb15eb91cb";
     const redirect_uri = "http://localhost:3000";
 
